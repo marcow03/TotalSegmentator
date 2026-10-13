@@ -1,8 +1,7 @@
 # Iliac artery report — technical documentation
 
 Developer notes for `totalsegmentator/iliac_report/` (v0.1.0). For user documentation see
-[iliac_report.md](iliac_report.md). Links point to the code at the time of writing; line numbers
-may drift.
+[iliac_report.md](iliac_report.md).
 
 ## Modules
 
@@ -50,41 +49,39 @@ flowchart TD
 
 ## Call stack
 
-```text
-main()                                              bin/totalseg_iliac_report.py:182
-├─ _load_metadata / _validate_ct                    :19 / :138
-└─ create_iliac_report()  (generator, yields progress)  pipeline.py:213
-   ├─ _prepare_context, _resolve_ct_path            :51, :63
-   ├─ _run_segmentation_models  [--run_models]      :80
-   │  ├─ get_iliac_fast                             model_runner.py:58
-   │  ├─ crop_to_iliacs → cut_aorta_above_iliacs    model_runner.py:69
-   │  ├─ change_spacing (0.8 mm)
-   │  └─ run_models_consecutive                     model_runner.py:105
-   ├─ _load_report_data                             pipeline.py:104
-   │  ├─ _validate_inputs                           :90
-   │  ├─ crop_to_masks + change_spacing  (reference grid)
-   │  ├─ lazy_load (CT order 3, masks order 0)
-   │  └─ cut_aorta_above_iliacs, keep_largest_blob (aorta only)
-   ├─ _build_centerlines                            pipeline.py:172
-   │  └─ build_side_centerline                      centerline.py:129
-   │     ├─ bridge_gaps                             centerline.py:45
-   │     ├─ smooth_mask, get_centerline, reorder_centerline   (aorta_report)
-   │     ├─ smooth_centerline                       centerline.py:93
-   │     ├─ find_bifurcation_index                  centerline.py:112
-   │     └─ resample_cl_to_same_distance (1 mm)
-   ├─ compute_profiles                              measurements.py:254
-   │  ├─ diameter_profile → plane_intersection      :151 → :52
-   │  ├─ exclude_edges / exclude_near_gaps / exclude_focal_narrowings   :188 / :222 / :235
-   ├─ place_landmarks → max_short_axis_index        landmarks.py:42 → :22
-   ├─ create_landmark_planes                        measurements.py:63
-   ├─ measure_landmarks                             measurements.py:90
-   ├─ measure_sections → tortuosity_index           measurements.py:287 → :277
-   ├─ _create_cpr → cpr, plot_iliac_cpr  [-c]       pipeline.py:189 → plotting.py:143
-   ├─ plot_diameter_profiles, plot_iliac_seg        plotting.py:99, :34
-   ├─ render_report_image, prepare_results          rendering.py:13, :36
-   ├─ serialize_outputs, cleanup_workdir            rendering.py:56, :72
-└─ _save_report                                     bin/totalseg_iliac_report.py:159
-```
+- `main()` ([bin/totalseg_iliac_report.py](../totalsegmentator/bin/totalseg_iliac_report.py#L182))
+  - [`_load_metadata`](../totalsegmentator/bin/totalseg_iliac_report.py#L19) / [`_validate_ct`](../totalsegmentator/bin/totalseg_iliac_report.py#L138)
+  - [`create_iliac_report()`](../totalsegmentator/iliac_report/pipeline.py#L213) (generator, yields progress)
+    - [`_prepare_context`](../totalsegmentator/iliac_report/pipeline.py#L51), [`_resolve_ct_path`](../totalsegmentator/iliac_report/pipeline.py#L63)
+    - [`_run_segmentation_models`](../totalsegmentator/iliac_report/pipeline.py#L80) (`--run_models`)
+      - [`get_iliac_fast`](../totalsegmentator/iliac_report/model_runner.py#L58)
+      - [`crop_to_iliacs`](../totalsegmentator/iliac_report/model_runner.py#L69) → [`cut_aorta_above_iliacs`](../totalsegmentator/iliac_report/centerline.py#L20)
+      - `change_spacing` (0.8 mm)
+      - [`run_models_consecutive`](../totalsegmentator/iliac_report/model_runner.py#L105)
+    - [`_load_report_data`](../totalsegmentator/iliac_report/pipeline.py#L104)
+      - [`_validate_inputs`](../totalsegmentator/iliac_report/pipeline.py#L90)
+      - `crop_to_masks` + `change_spacing` (reference grid)
+      - `lazy_load` (CT order 3, masks order 0)
+      - [`cut_aorta_above_iliacs`](../totalsegmentator/iliac_report/centerline.py#L20), `keep_largest_blob` (aorta only)
+    - [`_build_centerlines`](../totalsegmentator/iliac_report/pipeline.py#L172)
+      - [`build_side_centerline`](../totalsegmentator/iliac_report/centerline.py#L129)
+        - [`bridge_gaps`](../totalsegmentator/iliac_report/centerline.py#L45)
+        - `smooth_mask`, `get_centerline`, `reorder_centerline` (aorta_report)
+        - [`smooth_centerline`](../totalsegmentator/iliac_report/centerline.py#L93)
+        - [`find_bifurcation_index`](../totalsegmentator/iliac_report/centerline.py#L112)
+        - `resample_cl_to_same_distance` (1 mm)
+    - [`compute_profiles`](../totalsegmentator/iliac_report/measurements.py#L254)
+      - [`diameter_profile`](../totalsegmentator/iliac_report/measurements.py#L151) → [`plane_intersection`](../totalsegmentator/iliac_report/measurements.py#L52)
+      - [`exclude_edges`](../totalsegmentator/iliac_report/measurements.py#L188), [`exclude_near_gaps`](../totalsegmentator/iliac_report/measurements.py#L222), [`exclude_focal_narrowings`](../totalsegmentator/iliac_report/measurements.py#L235)
+    - [`place_landmarks`](../totalsegmentator/iliac_report/landmarks.py#L42) → [`max_short_axis_index`](../totalsegmentator/iliac_report/landmarks.py#L22)
+    - [`create_landmark_planes`](../totalsegmentator/iliac_report/measurements.py#L63)
+    - [`measure_landmarks`](../totalsegmentator/iliac_report/measurements.py#L90)
+    - [`measure_sections`](../totalsegmentator/iliac_report/measurements.py#L287) → [`tortuosity_index`](../totalsegmentator/iliac_report/measurements.py#L277)
+    - [`_create_cpr`](../totalsegmentator/iliac_report/pipeline.py#L189) → `cpr`, [`plot_iliac_cpr`](../totalsegmentator/iliac_report/plotting.py#L143) (`-c`)
+    - [`plot_diameter_profiles`](../totalsegmentator/iliac_report/plotting.py#L99), [`plot_iliac_seg`](../totalsegmentator/iliac_report/plotting.py#L34)
+    - [`render_report_image`](../totalsegmentator/iliac_report/rendering.py#L13), [`prepare_results`](../totalsegmentator/iliac_report/rendering.py#L36)
+    - [`serialize_outputs`](../totalsegmentator/iliac_report/rendering.py#L56), [`cleanup_workdir`](../totalsegmentator/iliac_report/rendering.py#L72)
+  - [`_save_report`](../totalsegmentator/bin/totalseg_iliac_report.py#L159)
 
 ## Key methods
 
@@ -177,8 +174,7 @@ Landmarks get `cl_side`/`cl_idx`; unplaceable ones are `empty` and produce `null
 | Centerline smoothing (σ = 3) | skeleton staircase overestimated length by ~8 % |
 | Short-axis diameter for section max/min and the max landmark | long axis spikes (~26 mm) where the plane cuts the internal iliac origin |
 | Bridge gaps ≤ 20 mm for the centerline only | masks often break at the CIA/EIA transition although the lumen is contrast-filled |
-| Exclude + warn + report gaps and focal narrowings | user decision: don't let artifacts become min diameters, but keep them visible |
-| Only `total` task, no Modal host / `-mp` | no license needed; a single model run makes parallelism pointless |
+| Exclude + warn + report gaps and focal narrowings | don't let artifacts become min diameters, but keep them visible |
 
 ## Constants and parameters
 
@@ -212,7 +208,7 @@ CLI ([`_build_parser`](../totalsegmentator/bin/totalseg_iliac_report.py#L55)): `
 | file | type | data | runtime |
 |---|---|---|---|
 | [`tests/test_iliac_report_geometry.py`](../tests/test_iliac_report_geometry.py) | unit, no GPU | synthetic phantom | seconds |
-| [`tests/test_iliac_report.py`](../tests/test_iliac_report.py) | end-to-end CLI | AortaSeg24 `subject001_CTA.nii.gz` | ~3 min (GPU) |
+| [`tests/test_iliac_report.py`](../tests/test_iliac_report.py) | end-to-end CLI | TotalSegmentator sample | ~3 min (GPU) |
 
 **Phantom** ([`_phantom`](../tests/test_iliac_report_geometry.py#L46)): inverted Y at 0.8 mm,
 aorta r = 8 mm, iliacs r = 5 mm, optional bulge (r = 7 mm, right), neck (right, r → 1.5 mm) and gap
@@ -249,10 +245,7 @@ PATH=$PWD/.venv/bin:$PATH .venv/bin/pytest -q tests/test_iliac_report.py
 - **Smoothing** with fixed σ may cut corners in very tortuous vessels (slight length
   underestimate).
 - **No lumen/thrombus/calcium separation**; thresholds were tuned on contrast CTA only.
-- **Validation**: 3 AortaSeg24 CTAs (subjects 001–003) by plausibility; no comparison against
+- **Validation**: AortaSeg24 and TotalSegmentator CTAs by plausibility; no comparison against
   manual measurements.
-- **Reference JSON** is from the `-t basic` (1.5 mm) run, not production spacing, and is derived
-  from AortaSeg24 data — check the dataset license.
 - **CLI validation** (metadata, image shape, age) logs a warning and returns with exit code 0.
 - `model_runner` calls `TotalSegmentator` via subprocess: it must be on `PATH`.
-- `plot_iliac_cpr` reuses private helpers of `aorta_report/plotting.py`; changes there can break it.
