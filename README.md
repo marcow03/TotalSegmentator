@@ -191,6 +191,15 @@ totalseg_pulmonary_report -i ct.nii.gz \
   -l pulmonary_report.log --run_models
 ```
 
+To measure the diameters, lengths, volumes and tortuosity of both iliac arteries
+(and an optional CPR), use the iliac artery report command. See the
+[iliac report documentation](resources/iliac_report.md):
+```bash
+totalseg_iliac_report -i ct.nii.gz \
+  -o iliac_report.nii.gz -j iliac_report.json -l iliac_report.log \
+  -c iliac_cpr.png --run_models
+```
+
 Normally weights are automatically downloaded when running TotalSegmentator. If you want to download the weights with an extra command (e.g. when building a docker container) use this:
 ```bash
 totalseg_download_weights -t <task_name>

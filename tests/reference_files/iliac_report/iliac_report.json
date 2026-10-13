@@ -1,0 +1,367 @@
+{
+    "landmarks": {
+        "1": {
+            "name": "aortic bifurcation",
+            "area": 2.6,
+            "diameter": 2.0,
+            "diameter_pd": 1.9,
+            "start": [
+                -1.6595,
+                -18.8217,
+                1409.8917
+            ],
+            "end": [
+                11.2677,
+                -3.9551,
+                1412.4901
+            ],
+            "start_pd": [
+                -2.2783,
+                -4.8968,
+                1413.5949
+            ],
+            "end_pd": [
+                11.1001,
+                -17.1157,
+                1409.0652
+            ],
+            "start_voxel": [
+                10,
+                8,
+                18
+            ],
+            "end_voxel": [
+                26,
+                27,
+                18
+            ],
+            "start_pd_voxel": [
+                9,
+                26,
+                18
+            ],
+            "end_pd_voxel": [
+                26,
+                10,
+                18
+            ]
+        },
+        "2": {
+            "name": "R iliac prox.",
+            "area": 1.0,
+            "diameter": 1.2,
+            "diameter_pd": 1.1,
+            "start": [
+                1.6097,
+                -2.9368,
+                1389.4169
+            ],
+            "end": [
+                9.5831,
+                -11.7574,
+                1389.6645
+            ],
+            "start_pd": [
+                1.7359,
+                -10.0389,
+                1388.2404
+            ],
+            "end_pd": [
+                8.6329,
+                -2.2739,
+                1391.0647
+            ],
+            "start_voxel": [
+                12,
+                22,
+                18
+            ],
+            "end_voxel": [
+                22,
+                11,
+                18
+            ],
+            "start_pd_voxel": [
+                12,
+                13,
+                18
+            ],
+            "end_pd_voxel": [
+                21,
+                23,
+                18
+            ]
+        },
+        "3": {
+            "name": "R iliac max.",
+            "area": 2.2,
+            "diameter": 1.8,
+            "diameter_pd": 1.7,
+            "start": [
+                7.8355,
+                -2.2548,
+                1367.4787
+            ],
+            "end": [
+                21.5651,
+                -8.4362,
+                1377.3016
+            ],
+            "start_pd": [
+                9.6666,
+                -13.4143,
+                1369.2988
+            ],
+            "end_pd": [
+                14.4728,
+                2.6422,
+                1371.8383
+            ],
+            "start_voxel": [
+                8,
+                22,
+                17
+            ],
+            "end_voxel": [
+                29,
+                14,
+                17
+            ],
+            "start_pd_voxel": [
+                11,
+                8,
+                17
+            ],
+            "end_pd_voxel": [
+                18,
+                28,
+                17
+            ]
+        },
+        "4": {
+            "name": "R iliac distal",
+            "area": 0.8,
+            "diameter": 1.1,
+            "diameter_pd": 1.0,
+            "start": [
+                67.9952,
+                21.052,
+                1240.8544
+            ],
+            "end": [
+                74.3978,
+                12.254,
+                1240.8067
+            ],
+            "start_pd": [
+                68.028,
+                13.8775,
+                1240.2504
+            ],
+            "end_pd": [
+                75.9557,
+                19.4213,
+                1241.5834
+            ],
+            "start_voxel": [
+                13,
+                23,
+                17
+            ],
+            "end_voxel": [
+                21,
+                12,
+                17
+            ],
+            "start_pd_voxel": [
+                13,
+                14,
+                17
+            ],
+            "end_pd_voxel": [
+                23,
+                21,
+                17
+            ]
+        },
+        "5": {
+            "name": "L iliac prox.",
+            "area": 1.2,
+            "diameter": 1.3,
+            "diameter_pd": 1.2,
+            "start": [
+                -14.3171,
+                -13.8683,
+                1397.2531
+            ],
+            "end": [
+                -3.3252,
+                -11.2427,
+                1390.4439
+            ],
+            "start_pd": [
+                -11.1731,
+                -6.1403,
+                1394.0293
+            ],
+            "end_pd": [
+                -7.231,
+                -17.3586,
+                1393.8115
+            ],
+            "start_voxel": [
+                9,
+                15,
+                17
+            ],
+            "end_voxel": [
+                25,
+                19,
+                17
+            ],
+            "start_pd_voxel": [
+                14,
+                25,
+                17
+            ],
+            "end_pd_voxel": [
+                19,
+                11,
+                17
+            ]
+        },
+        "6": {
+            "name": "L iliac max.",
+            "area": 1.2,
+            "diameter": 1.3,
+            "diameter_pd": 1.2,
+            "start": [
+                -22.6361,
+                -12.4681,
+                1377.651
+            ],
+            "end": [
+                -12.5928,
+                -19.037,
+                1372.92
+            ],
+            "start_pd": [
+                -21.0847,
+                -20.4752,
+                1377.452
+            ],
+            "end_pd": [
+                -15.5639,
+                -11.0036,
+                1373.8564
+            ],
+            "start_voxel": [
+                10,
+                22,
+                17
+            ],
+            "end_voxel": [
+                24,
+                14,
+                17
+            ],
+            "start_pd_voxel": [
+                12,
+                12,
+                17
+            ],
+            "end_pd_voxel": [
+                20,
+                24,
+                17
+            ]
+        },
+        "7": {
+            "name": "L iliac distal",
+            "area": 0.7,
+            "diameter": 1.0,
+            "diameter_pd": 0.9,
+            "start": [
+                -77.5696,
+                21.8305,
+                1246.3193
+            ],
+            "end": [
+                -71.2472,
+                13.8644,
+                1245.0828
+            ],
+            "start_pd": [
+                -79.1735,
+                17.0322,
+                1246.2568
+            ],
+            "end_pd": [
+                -72.0135,
+                21.8497,
+                1245.62
+            ],
+            "start_voxel": [
+                13,
+                22,
+                18
+            ],
+            "end_voxel": [
+                21,
+                12,
+                18
+            ],
+            "start_pd_voxel": [
+                11,
+                16,
+                18
+            ],
+            "end_pd_voxel": [
+                20,
+                22,
+                18
+            ]
+        }
+    },
+    "section_stats": {
+        "iliac_right": {
+            "length": 21.5,
+            "volume": 21.4,
+            "max_diameter": 1.7,
+            "min_diameter": 0.7,
+            "tortuosity_index": 1.16,
+            "excluded_regions": [
+                {
+                    "reason": "focal narrowing (segmentation artifact or stenosis)",
+                    "start_mm": 95,
+                    "end_mm": 119
+                }
+            ]
+        },
+        "iliac_left": {
+            "length": 20.6,
+            "volume": 17.1,
+            "max_diameter": 1.3,
+            "min_diameter": 0.8,
+            "tortuosity_index": 1.12,
+            "excluded_regions": [
+                {
+                    "reason": "segmentation gap",
+                    "start_mm": 90,
+                    "end_mm": 120
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "PatientName": "Unknown",
+        "PatientSex": "M",
+        "PatientAge": 55,
+        "PatientBirthDate": "19000101",
+        "PatientID": "Unknown",
+        "StudyID": "Unknown",
+        "StudyDescription": "Unknown",
+        "StudyDate": "19000101",
+        "version": "0.1.0"
+    }
+}
