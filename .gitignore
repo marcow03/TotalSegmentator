@@ -11,6 +11,7 @@ dist/
 tmp_weights/
 tmp_weights_DELETE/
 store/
+out/
 unittest_prediction
 unittest_prediction_fast
 unittest_prediction_roi_subset

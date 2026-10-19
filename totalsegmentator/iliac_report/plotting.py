@@ -3,6 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
+from matplotlib.patches import Patch
 from PIL import Image
 from scipy.ndimage import binary_dilation
 
@@ -140,6 +141,25 @@ def _cpr_profile_y(profile, nr_slices, step_mm):
     return (nr_slices - 1) * step_mm - arc_length_from_distal_end
 
 
+def _cpr_excluded_regions(profile, nr_slices, step_mm):
+    """Excluded profile regions with their extent on the CPR display y-axis (mm)."""
+    if profile is None or not len(profile["distances"]):
+        return []
+    # same mapping as _cpr_profile_y
+    offset = (nr_slices - 1) * step_mm - profile["distances"][0]
+    return [
+        {**region, "y_min": offset + region["start_mm"], "y_max": offset + region["end_mm"]}
+        for region in profile.get("excluded", [])
+    ]
+
+
+def _exclusion_summary(regions):
+    if not regions:
+        return "No regions excluded from measurement."
+    lines = [f"{region['start_mm']}-{region['end_mm']} mm: {region['reason']}" for region in regions]
+    return "Not measured (distance from aortic bifurcation):\n" + "\n".join(lines)
+
+
 def plot_iliac_cpr(cprs, profiles, landmarks, affine, output_path, metadata, tmp_dir, vmin=-700, vmax=1000):
     """CPR overview: one row per side with sagittal, coronal CPR and diameter profile.
 
@@ -160,6 +180,8 @@ def plot_iliac_cpr(cprs, profiles, landmarks, affine, output_path, metadata, tmp
             for number, landmark in landmarks.items()
             if landmark.get("cl_side") == side
         }
+        profile = profiles.get(side)
+        excluded = _cpr_excluded_regions(profile, nr_slices, step_mm)
         landmark_positions = _get_landmark_positions(
             side_landmarks,
             np.asarray([vertex.point for vertex in centerline]),
@@ -177,11 +199,16 @@ def plot_iliac_cpr(cprs, profiles, landmarks, affine, output_path, metadata, tmp
             _plot_mask_contours(ax, mask, color="#ff4d4d", smooth=35, linewidth=1.8)
             for landmark in landmark_positions:
                 ax.axhline(landmark["slice_idx"], color="white", linewidth=0.8, alpha=0.25)
+            for region in excluded:
+                ax.axhspan(region["y_min"] / step_mm, region["y_max"] / step_mm, color=SIDE_COLORS[side],
+                           alpha=0.15, linewidth=0)
             ax.set_title(title, color="white", fontsize=12, pad=10)
             ax.axis("off")
 
-        profile = profiles.get(side)
         max_curve_mm = 10.0
+        for region in excluded:
+            axes[2].axhspan(region["y_min"], region["y_max"], facecolor=SIDE_COLORS[side], alpha=0.15,
+                            edgecolor=SIDE_COLORS[side], hatch="///", linewidth=0)
         if profile is not None and len(profile["distances"]):
             curve_y = _cpr_profile_y(profile, nr_slices, step_mm)
             axes[2].plot(profile["minor"], curve_y, color=SIDE_COLORS[side], linewidth=1.8,
@@ -190,7 +217,13 @@ def plot_iliac_cpr(cprs, profiles, landmarks, affine, output_path, metadata, tmp
                          alpha=0.5, linestyle="--", label="Long axis")
             if np.isfinite(profile["major"]).any():
                 max_curve_mm = max(max_curve_mm, float(np.nanmax(profile["major"])))
-            axes[2].legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.06), ncol=2, fontsize=9)
+            handles, _ = axes[2].get_legend_handles_labels()
+            if excluded:
+                handles.append(Patch(facecolor=SIDE_COLORS[side], alpha=0.3, hatch="///", label="Not measured"))
+            axes[2].legend(handles=handles, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.06),
+                           ncol=len(handles), fontsize=9)
+            axes[2].text(0.0, -0.12, _exclusion_summary(excluded), transform=axes[2].transAxes,
+                         color=colors["orange"] if excluded else "white", fontsize=8, ha="left", va="top")
         _style_diameter_profile(axes[2], (nr_slices - 1) * step_mm, max_curve_mm, landmark_positions)
         axes[2].set_ylabel("Along centerline [mm]", color="white")
         axes[2].set_title("Diameter Profile", color="white", fontsize=12, pad=10)
