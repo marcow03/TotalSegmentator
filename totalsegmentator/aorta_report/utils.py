@@ -127,12 +127,12 @@ def crop_to_aorta(ct_path, tmp_dir, logger, totalseg_version="v2"):
     ct_img = nib.load(ct_path)
     print("Cropping...")
     print(f"  shape Before: {ct_img.shape}")
-    ct_img = crop_to_masks(
-        ct_img,
-        [nib.load(tmp_dir / "aorta.nii.gz"), nib.load(tmp_dir / f"{heart_name}.nii.gz")],
-        [20, 20, 20],
-        dtype=np.int16,
-    )
+    crop_masks = [nib.load(tmp_dir / "aorta.nii.gz"), nib.load(tmp_dir / f"{heart_name}.nii.gz")]
+    for name in ("iliac_artery_left", "iliac_artery_right"):
+        mask_path = tmp_dir / f"{name}.nii.gz"
+        if mask_path.exists() and np.asanyarray(nib.load(mask_path).dataobj).any():
+            crop_masks.append(nib.load(mask_path))
+    ct_img = crop_to_masks(ct_img, crop_masks, [20, 20, 20], dtype=np.int16)
     print(f"  shape After: {ct_img.shape}")
     nib.save(ct_img, output_path)
     return output_path

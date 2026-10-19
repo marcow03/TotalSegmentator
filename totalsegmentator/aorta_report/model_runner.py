@@ -194,7 +194,8 @@ def get_aorta_fast(ct_path, tmp_dir, logger, totalseg_version="v2", host="local"
         return
     _validate_host(host)
     heart_name = "heart_myocardium" if totalseg_version == "v1" else "heart"
-    task_args = ["-ta", "total", "-rs", "aorta", heart_name, "--fast"]
+    # iliac arteries are included so the crop also covers them (reusable by the iliac report)
+    task_args = ["-ta", "total", "-rs", "aorta", heart_name, "iliac_artery_left", "iliac_artery_right", "--fast"]
     if host == "local":
         _run(
             _command(Path(ct_path), Path(tmp_dir), task_args),

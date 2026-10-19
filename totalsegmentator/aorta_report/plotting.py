@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from PIL import Image
@@ -261,12 +262,50 @@ def _get_landmark_positions(landmarks, centerline_points_vox, centerline_affine,
         display_slice_idx = nr_slices - 1 - cpr_slice_idx
         label = f"{lm_nr} {lm_dict.get('name', '')}".strip()
         landmark_positions.append({
+            "number": lm_nr,
             "label": label,
             "slice_idx": display_slice_idx,
             "distance_mm": display_slice_idx * step_mm,
         })
 
     return landmark_positions
+
+
+
+def _json_values(values):
+    """Convert an array to a JSON-serializable list (NaN -> None)."""
+    if values is None:
+        return None
+    return [round(float(v), 2) if np.isfinite(v) else None for v in np.asarray(values, dtype=float)]
+
+
+def save_profile_json(output_path, profile):
+    """Save diameter profile data for external viewers (e.g. a dashboard)."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(profile, f, indent=2)
+
+
+def save_cpr_view(output_path, image, mask, vmin, vmax, landmark_positions=(), highlight_rows=(),
+                  highlight_color=None):
+    """Save one longitudinal CPR view (image, mask contour, landmark lines) without the report frame."""
+    height, width = image.shape
+    dpi = 100
+    scale = max(1.0, 600 / height)
+    fig = plt.figure(figsize=(width * scale / dpi, height * scale / dpi), dpi=dpi, facecolor="black")
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.imshow(image, cmap="gray", vmin=vmin, vmax=vmax, interpolation="bicubic")
+    _plot_mask_contours(ax, mask, color="#ff4d4d", smooth=35, linewidth=1.8)
+    for landmark in landmark_positions:
+        ax.axhline(landmark["slice_idx"], color="white", linewidth=0.8, alpha=0.25)
+    for row_min, row_max in highlight_rows:
+        ax.axhspan(row_min, row_max, color=highlight_color, alpha=0.15, linewidth=0)
+    ax.set_xlim(-0.5, width - 0.5)
+    ax.set_ylim(height - 0.5, -0.5)
+    ax.axis("off")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=dpi, facecolor="black")
+    plt.close(fig)
 
 
 def plot_cpr_overview(img, mask, output_path, vmin, vmax, true_lumen_mask=None, false_lumen_mask=None,
@@ -305,6 +344,22 @@ def plot_cpr_overview(img, mask, output_path, vmin, vmax, true_lumen_mask=None, 
     )
 
     plt.style.use("dark_background")
+    if tmp_dir is not None:
+        tmp_dir = Path(tmp_dir)
+        save_cpr_view(tmp_dir / "cpr_sagittal.png", img_sagittal, mask_sagittal, vmin, vmax, landmark_positions)
+        save_cpr_view(tmp_dir / "cpr_coronal.png", img_coronal, mask_coronal, vmin, vmax, landmark_positions)
+        save_profile_json(tmp_dir / "diameter_profile.json", {
+            "positions_mm": _json_values(curve_y_mm),
+            "length_mm": round(float(display_y_mm.max()), 2),
+            "aorta": _json_values(aorta_curve),
+            "true_lumen": _json_values(true_curve),
+            "false_lumen": _json_values(false_curve),
+            "landmarks": [
+                {"number": lm["number"], "label": lm["label"], "position_mm": round(float(lm["distance_mm"]), 2)}
+                for lm in landmark_positions
+            ],
+        })
+
     fig = plt.figure(figsize=(13.5, 8.5), facecolor="black")
     gs = fig.add_gridspec(1, 3, width_ratios=[1.0, 1.0, 1.2], wspace=0.16)
     ax1 = fig.add_subplot(gs[0, 0])
