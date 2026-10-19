@@ -13,30 +13,21 @@ REFERENCE_DIR = Path(__file__).parent / "reference_files" / "iliac_report"
 REFERENCE_JSON = REFERENCE_DIR / "iliac_report.json"
 AORTA_REFERENCE_DIR = Path(__file__).parent / "reference_files" / "aorta_report"
 EXAMPLE_NODEINFO = AORTA_REFERENCE_DIR / "example_nodeinfo.json"
-# CTA covering the abdominal aorta and both iliac arteries (subject001 of the
-# AortaSeg24 dataset). It is too large to be committed; override the location
-# with ILIAC_REPORT_TEST_CT.
 EXAMPLE_CT = Path(
     os.environ.get(
         "ILIAC_REPORT_TEST_CT",
-        Path(__file__).parents[2] / "data/asg24/ResampledDataInNifti/images/subject001_CTA.nii.gz",
+        Path(__file__).parents[2] / "data/totalsegmentator/Totalsegmentator_dataset_v300/s0733/ct.nii.gz",
     )
 )
 
-pytestmark = pytest.mark.skipif(
-    not EXAMPLE_CT.exists(), reason=f"example CTA not found: {EXAMPLE_CT}"
-)
+pytestmark = pytest.mark.skipif(not EXAMPLE_CT.exists(), reason=f"example CTA not found: {EXAMPLE_CT}")
 
 
 def dicts_almost_equal(first, second):
     if isinstance(first, dict) and isinstance(second, dict):
-        return first.keys() == second.keys() and all(
-            dicts_almost_equal(first[key], second[key]) for key in first
-        )
+        return first.keys() == second.keys() and all(dicts_almost_equal(first[key], second[key]) for key in first)
     if isinstance(first, list) and isinstance(second, list):
-        return len(first) == len(second) and all(
-            dicts_almost_equal(left, right) for left, right in zip(first, second)
-        )
+        return len(first) == len(second) and all(dicts_almost_equal(left, right) for left, right in zip(first, second))
     if isinstance(first, (int, float)) and isinstance(second, (int, float)):
         return abs(first - second) <= 0.2
     return first == second
@@ -44,11 +35,7 @@ def dicts_almost_equal(first, second):
 
 def remove_keys_with_prefix(value, prefixes):
     if isinstance(value, dict):
-        return {
-            key: remove_keys_with_prefix(item, prefixes)
-            for key, item in value.items()
-            if not any(key.startswith(prefix) for prefix in prefixes)
-        }
+        return {key: remove_keys_with_prefix(item, prefixes) for key, item in value.items() if not any(key.startswith(prefix) for prefix in prefixes)}
     if isinstance(value, list):
         return [remove_keys_with_prefix(item, prefixes) for item in value]
     return value
