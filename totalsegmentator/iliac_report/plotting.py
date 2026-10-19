@@ -13,8 +13,11 @@ from totalsegmentator.aorta_report.plotting import (
     _get_landmark_positions,
     _plot_mask_contours,
     _render_preview_scene,
+    _json_values,
     _style_diameter_profile,
     colors,
+    save_cpr_view,
+    save_profile_json,
 )
 from totalsegmentator.aorta_report.report_layout import compose_report_image
 from totalsegmentator.iliac_report.constants import SIDES
@@ -97,8 +100,34 @@ def _profile_landmark_distances(landmarks, side, profile, centerline):
     return result
 
 
+def _save_diameter_profiles_json(sides, profiles, landmarks, output_path):
+    data = {"landmarks": []}
+    for side in SIDES:
+        profile = profiles.get(side)
+        if profile is None or not len(profile["distances"]):
+            continue
+        data[side] = {
+            "distances": _json_values(profile["distances"]),
+            "minor": _json_values(profile["minor"]),
+            "major": _json_values(profile["major"]),
+            "excluded": [
+                {"start_mm": float(r["start_mm"]), "end_mm": float(r["end_mm"]), "reason": r["reason"]}
+                for r in profile.get("excluded", [])
+            ],
+        }
+        for number, distance in _profile_landmark_distances(landmarks, side, profile, sides[side]["centerline"]):
+            data["landmarks"].append({
+                "number": number,
+                "name": landmarks[number].get("display_name", landmarks[number].get("name")),
+                "side": side,
+                "distance_mm": round(float(distance), 2),
+            })
+    save_profile_json(output_path, data)
+
+
 def plot_diameter_profiles(sides, profiles, landmarks, output_path):
     """Short- and long-axis diameter along both iliac arteries."""
+    _save_diameter_profiles_json(sides, profiles, landmarks, Path(output_path).with_suffix(".json"))
     plt.style.use("dark_background")
     fig, ax = plt.subplots(figsize=(7.5, 3.0), facecolor="black")
     max_diameter = 10.0
@@ -190,6 +219,11 @@ def plot_iliac_cpr(cprs, profiles, landmarks, affine, output_path, metadata, tmp
             nr_slices,
             step_mm,
         )
+        if tmp_dir is not None:
+            excluded_rows = [(region["y_min"] / step_mm, region["y_max"] / step_mm) for region in excluded]
+            for view, image, mask in (("sagittal", img_sagittal, mask_sagittal), ("coronal", img_coronal, mask_coronal)):
+                save_cpr_view(Path(tmp_dir) / f"cpr_{side}_{view}.png", image, mask, vmin, vmax,
+                              landmark_positions, excluded_rows, SIDE_COLORS[side])
         axes = [fig.add_subplot(grid[row, col]) for col in range(3)]
         for ax, title, image, mask in (
             (axes[0], f"{side.capitalize()} - Sagittal CPR", img_sagittal, mask_sagittal),
